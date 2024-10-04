@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Alex's Notary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Animations */
+        .hover-transition {
+            transition: all 0.4s ease-in-out;
+        }
+
+        .hover-transition:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-hero {
+            background-image: url('https://images.unsplash.com/photo-1508830524289-0adcbe822b40?fit=crop&w=1500&q=80');
+            background-size: cover;
+            background-position: center;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-in-out;
+        }
+
+        /* Keyframes */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Smooth Review Slide Animation */
+        .review-slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .review-slide.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .review-bullet {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .review-bullet.active {
+            background-color: #1d4ed8;
+        }
+
+        .stars {
+            color: #FFD700;
+            font-size: 24px;
+        }
+
+        .slideshow-container {
+            position: relative;
+        }
+
+        .rating-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rating-container span {
+            color: #FFD700;
+            font-size: 22px;
+        }
+
+        .svg-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+        }
+
+        /* Footer Links Hover */
+        footer a:hover {
+            color: #FFD700; /* Gold hover color */
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #002f6c;
+        }
+
+        /* Header Hover */
+        nav a:hover {
+            color: #FFD700;
+            transition: 0.3s;
+        }
+
+        /* Live Chat Button Styling */
+        .chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1d4ed8;
+            color: white;
+            font-weight: bold;
+            padding: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .chat-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-btn img {
+            width: 30px;
+        }
+
+        /* Chat Form Popup */
+        .chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            border: 2px solid #1d4ed8;
+            border-radius: 10px;
+            background-color: white;
+            z-index: 9999;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-popup input, .chat-popup textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .chat-popup button {
+            background-color: #1d4ed8;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-popup button:hover {
+            background-color: #3b82f6;
+        }
+
+        .chat-popup .close-btn {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            width: 30px;
+            text-align: center;
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-blue-700 text-white py-6 shadow-lg sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-4xl font-bold">Alex's Notary</div>
+            <nav class="space-x-8 text-lg flex items-center">
+                <a href="#services" class="hover:text-gray-300">Services</a>
+                <a href="#pricing" class="hover:text-gray-300">Pricing</a>
+                <a href="#reviews" class="hover:text-gray-300">Reviews</a>
+                <a href="#contact" class="hover:text-gray-300">Contact</a>
+                <a href="#login" class="hover:text-gray-300 flex items-center bg-white text-blue-600 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition hover-transition" onclick="googleSignIn()">
+                    <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5 mr-2"> Sign in with Google
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Image Background and CTA Button -->
+    <section class="relative bg-hero py-36">
+        <div class="absolute inset-0 bg-black opacity-40"></div>
+        <div class="relative container mx-auto text-center text-white">
+            <h1 class="text-6xl font-bold animate-fade-in-up">Welcome to Alex's Notary Services</h1>
+            <p class="text-2xl mt-4 animate-fade-in-up">Trusted notary services with a focus on professionalism and efficiency.</p>
+            <a href="#services" class="bg-blue-600 py-3 px-6 mt-8 inline-block rounded-lg hover:bg-blue-500 transition hover-transition animate-fade-in-up">Explore Our Services</a>
+        </div>
+    </section>
+
+    <!-- Meet the Owner Section -->
+    <section id="meet-the-owner" class="py-16 bg-gray-100 slide-in-left">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-8">Meet the Owner</h2>
+            <div class="flex flex-col md:flex-row items-center">
+                <img src="https://media.discordapp.net/attachments/1277703090245730324/1284176318820384768/984e6b54-32b0-45f7-82ef-21d6f9dc90a8.jpg" alt="Owner" class="w-40 h-40 rounded-full shadow-lg mx-auto mb-6 md:mb-0 md:mr-6">
+                <p class="text-lg">Hi, I’m Alex, the owner of Alex's Notary. With over a decade of experience in notarization services, I am committed to providing reliable, efficient, and convenient notary services to all my clients. My goal is to make the process as seamless as possible, whether you need a simple document notarized or more complex legal documentation handled.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3-Column Info Section with SVG Icons and Hover Effects -->
+    <section id="services" class="py-16">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <!-- Mobile Notary -->
+            <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                <img src="https://www.svgrepo.com/show/332155/notary-public-notary.svg" alt="Mobile Notary" class="svg-icon">
+                <h2 class="text-2xl font-bold">Mobile Notary</h2>
+                <p class="mt-4">Convenient notarization services wherever you need us.</p>
+            </div>
+            <!-- Document Preparation -->
+            <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                <img src="https://www.svgrepo.com/show/16904/document.svg" alt="Document Preparation" class="svg-icon">
+                <h2 class="text-2xl font-bold">Document Preparation</h2>
+                <p class="mt-4">Get your documents prepared and reviewed with professionalism.</p>
+            </div>
+            <!-- E-Notary -->
+            <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                <img src="https://www.svgrepo.com/show/322762/electronic-signature.svg" alt="E-Notary" class="svg-icon">
+                <h2 class="text-2xl font-bold">E-Notary</h2>
+                <p class="mt-4">Fast, secure, and compliant electronic notarization services.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Section with Law-Related Image -->
+    <section class="py-16 bg-gray-100">
+        <div class="container mx-auto flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 animate-fade-in-up">
+                <img src="https://images.unsplash.com/photo-1523292562811-8fa7962a78c8?fit=crop&w=800&q=80" alt="Law Image" class="rounded-lg shadow-lg">
+            </div>
+            <div class="md:w-1/2 md:pl-12 mt-8 md:mt-0 animate-fade-in-up">
+                <h2 class="text-4xl font-bold">Why Choose Alex's Notary?</h2>
+                <p class="mt-4 text-lg">We provide reliable, efficient, and accessible notary services. Our mobile services ensure you can get documents notarized anywhere, and our team is here to guide you through every step.</p>
+                <ul class="mt-6 space-y-4">
+                    <li><strong>Expertise</strong>: Over a decade of experience in notarization and legal services.</li>
+                    <li><strong>Convenience</strong>: Mobile services to meet your scheduling needs.</li>
+                    <li><strong>Security</strong>: Legally compliant and secure notarization processes.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section with Call to Action -->
+    <section id="pricing" class="py-16 bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-8">Our Pricing</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-100 p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                    <h3 class="text-2xl font-bold mb-4">Basic Package</h3>
+                    <p class="text-lg mb-4 text-blue-600 font-bold">$25 per document</p>
+                    <p>Perfect for single document notarizations. Fast, affordable, and efficient.</p>
+                    <a href="#" class="bg-blue-600 py-2 px-4 mt-8 inline-block rounded-lg text-white hover:bg-blue-500 transition hover-transition">Get Started</a>
+                </div>
+                <div class="bg-gray-100 p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                    <h3 class="text-2xl font-bold mb-4">Standard Package</h3>
+                    <p class="text-lg mb-4 text-blue-600 font-bold">$100 per appointment</p>
+                    <p>Great for multiple document notarizations and more personalized service.</p>
+                    <a href="#" class="bg-blue-600 py-2 px-4 mt-8 inline-block rounded-lg text-white hover:bg-blue-500 transition hover-transition">Book Now</a>
+                </div>
+                <div class="bg-gray-100 p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
+                    <h3 class="text-2xl font-bold mb-4">Premium Package</h3>
+                    <p class="text-lg mb-4 text-blue-600 font-bold">$200 full service</p>
+                    <p>Comprehensive notarization and document preparation for businesses and legal firms.</p>
+                    <a href="#" class="bg-blue-600 py-2 px-4 mt-8 inline-block rounded-lg text-white hover:bg-blue-500 transition hover-transition">Start Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Improved Review Section with Smooth Animation -->
+    <section id="reviews" class="py-16 bg-gray-100">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-8">Customer Reviews</h2>
+            <div class="slideshow-container">
+                <div class="review-slide active">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
+                        <div class="rating-container mb-4">
+                            <span class="stars">★★★★★</span>
+                            <span class="ml-4 text-gray-600">5 stars on TrustPilot</span>
+                        </div>
+                        <p class="text-xl">"Alex was so professional and made the whole process super easy! Highly recommend!"</p>
+                        <p class="mt-4 font-bold">- Sarah P.</p>
+                    </div>
+                </div>
+                <div class="review-slide">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
+                        <div class="rating-container mb-4">
+                            <span class="stars">★★★★★</span>
+                            <span class="ml-4 text-gray-600">5 stars on Google Reviews</span>
+                        </div>
+                        <p class="text-xl">"I needed several documents notarized last minute, and Alex came through for me!"</p>
+                        <p class="mt-4 font-bold">- John D.</p>
+                    </div>
+                </div>
+                <div class="review-slide">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
+                        <div class="rating-container mb-4">
+                            <span class="stars">★★★★★</span>
+                            <span class="ml-4 text-gray-600">5 stars on Yelp</span>
+                        </div>
+                        <p class="text-xl">"Fast, efficient, and friendly. Will definitely be using Alex's services again."</p>
+                        <p class="mt-4 font-bold">- Emily R.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-center space-x-4">
+                <span class="review-bullet active" onclick="showSlide(0)"></span>
+                <span class="review-bullet" onclick="showSlide(1)"></span>
+                <span class="review-bullet" onclick="showSlide(2)"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Google Maps Embed -->
+    <section id="location" class="py-16 bg-gray-100">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-8">Visit Us</h2>
+            <div class="mx-auto w-full md:w-3/4 animate-fade-in-up">
+                <iframe class="w-full h-96 rounded-lg shadow-lg" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3171.7811604692087!2d-81.3789260846925!3d28.538335982454636!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88e77af4737c9ad5%3A0xe1a9d08402d9f5fa!2sOrlando%2C%20FL!5e0!3m2!1sen!2sus!4v1600109782916!5m2!1sen!2sus" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section with Improved Design -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-8 animate-fade-in-up">Get in Touch</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Contact Information</h3>
+                    <p class="mb-4">We are here to help with your notary needs. Contact us for more information or to schedule an appointment.</p>
+                    <p><strong>Phone</strong>: +123 456 789</p>
+                    <p><strong>Email</strong>: info@alexnotary.com</p>
+                    <p><strong>Business Hours</strong>: Mon - Fri: 9 AM - 5 PM</p>
+                </div>
+                <form action="#" class="grid grid-cols-1 gap-4">
+                    <input type="text" placeholder="Your Name" class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <input type="email" placeholder="Your Email" class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <textarea placeholder="Your Message" rows="4" class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+                    <button type="submit" class="bg-blue-600 py-3 px-6 text-white rounded-lg hover:bg-blue-500 transition">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Chat Button -->
+    <div class="chat-btn" onclick="checkSignInStatus()">
+        <img src="https://www.svgrepo.com/show/168906/chat.svg" alt="Chat Icon">
+    </div>
+
+    <!-- Chat Popup Form -->
+    <div class="chat-popup" id="chatForm">
+        <span class="close-btn" onclick="closeChatForm()">×</span>
+        <h2 class="text-center mb-4">Live Chat</h2>
+        <form action="chat.html" method="GET">
+            <input type="text" placeholder="Your Name" name="name" required>
+            <textarea placeholder="Your Message" name="message" rows="4" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-blue-800 text-white py-12">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 animate-fade-in-up">
+            <div>
+                <h4 class="text-xl font-bold mb-4">Quick Links</h4>
+                <ul>
+                    <li><a href="#" class="hover:text-gray-300">Home</a></li>
+                    <li><a href="#" class="hover:text-gray-300">Services</a></li>
+                    <li><a href="#" class="hover:text-gray-300">Pricing</a></li>
+                    <li><a href="#" class="hover:text-gray-300">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Contact Info</h4>
+                <ul>
+                    <li><a href="#" class="hover:text-gray-300">Email: info@alexnotary.com</a></li>
+                    <li><a href="#" class="hover:text-gray-300">Phone: +123 456 789</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Social Media</h4>
+                <ul class="flex space-x-4">
+                    <li><a href="https://facebook.com" class="hover:text-gray-300">
+                        <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" class="w-6 h-6">
+                    </a></li>
+                    <li><a href="https://twitter.com" class="hover:text-gray-300">
+                        <img src="https://www.svgrepo.com/show/475647/twitter-color.svg" alt="Twitter" class="w-6 h-6">
+                    </a></li>
+                    <li><a href="https://linkedin.com" class="hover:text-gray-300">
+                        <img src="https://www.svgrepo.com/show/475647/linkedin-color.svg" alt="LinkedIn" class="w-6 h-6">
+                    </a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Business Hours</h4>
+                <ul>
+                    <li>Mon - Fri: 9 AM - 5 PM</li>
+                    <li>Sat - Sun: Closed</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center mt-8 text-gray-400">
+            &copy; 2024 Alex's Notary. All Rights Reserved.
+        </div>
+    </footer>
+
+    <script>
+        function openChatForm() {
+            document.getElementById("chatForm").style.display = "block";
+        }
+
+        function closeChatForm() {
+            document.getElementById("chatForm").style.display = "none";
+        }
+
+        function checkSignInStatus() {
+            // Here is where the Google sign-in validation will be integrated later.
+            // For now, it's mocked:
+            let isSignedIn = false; // Change this later based on actual Google sign-in status
+            if (!isSignedIn) {
+                alert("Please sign in first to access live chat.");
+                googleSignIn();
+            } else {
+                openChatForm();
+            }
+        }
+
+        function googleSignIn() {
+            // Placeholder for actual Google sign-in. Replace with actual API call.
+            alert("Redirecting to Google sign-in...");
+        }
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.review-slide');
+        const bullets = document.querySelectorAll('.review-bullet');
+
+        function showSlide(slideIndex) {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === slideIndex);
+                bullets[index].classList.toggle('active', index === slideIndex);
+            });
+        }
+
+        function autoSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        setInterval(autoSlide, 5000); // Change slides every 5 seconds
+    </script>
+
+</body>
+</html>
