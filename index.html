@@ -8,7 +8,6 @@
     <title>Alex's Notary</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script> <!-- Google Sign-In -->
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -35,7 +34,6 @@
             animation: fadeInUp 0.8s ease-in-out;
         }
 
-        /* Keyframes */
         @keyframes fadeInUp {
             0% {
                 opacity: 0;
@@ -115,7 +113,8 @@
             transition: 0.3s;
         }
 
-        .chat-btn {
+        /* Chat and Login Buttons */
+        .chat-btn, .login-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -134,15 +133,16 @@
             transition: transform 0.3s;
         }
 
-        .chat-btn:hover {
+        .chat-btn:hover, .login-btn:hover {
             transform: scale(1.05);
         }
 
-        .chat-btn img {
+        .chat-btn img, .login-btn img {
             width: 30px;
         }
 
-        .chat-popup {
+        /* Popups */
+        .popup {
             display: none;
             position: fixed;
             bottom: 100px;
@@ -156,8 +156,8 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .chat-popup input,
-        .chat-popup textarea {
+        .popup input,
+        .popup textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -165,7 +165,7 @@
             border-radius: 5px;
         }
 
-        .chat-popup button {
+        .popup button {
             background-color: #1d4ed8;
             color: white;
             padding: 10px;
@@ -175,11 +175,11 @@
             cursor: pointer;
         }
 
-        .chat-popup button:hover {
+        .popup button:hover {
             background-color: #3b82f6;
         }
 
-        .chat-popup .close-btn {
+        .popup .close-btn {
             background-color: red;
             color: white;
             padding: 5px;
@@ -191,11 +191,82 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
+        /* Achievements Section */
+        .achievements {
+            background-color: #f0f8ff;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .achievements h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .achievement-card {
+            display: inline-block;
+            background-color: white;
+            padding: 30px;
+            margin: 10px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .achievement-icon {
+            font-size: 50px;
+            color: #ffd700;
+        }
+
+        /* Social Media Icons */
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Profile Picture */
+        #profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 8px;
+            display: none;
+        }
+
+        /* Username */
+        #username {
+            color: white;
+            margin-right: 12px;
+            display: none;
+        }
+
+        /* Owner Image */
+        #owner-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 16px;
+        }
+
+        .owner-info {
+            padding: 16px;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
-
     <!-- Header -->
     <header class="bg-blue-700 text-white py-6 shadow-lg sticky top-0 z-10">
         <div class="container mx-auto flex justify-between items-center">
@@ -205,10 +276,12 @@
                 <a href="#pricing" class="hover:text-gray-300">Pricing</a>
                 <a href="#reviews" class="hover:text-gray-300">Reviews</a>
                 <a href="#contact" class="hover:text-gray-300">Contact</a>
-                <div id="google-signin-btn" class="hover:text-gray-300 flex items-center bg-white text-blue-600 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition hover-transition">
+                <span id="username"></span>
+                <img id="profile-picture" alt="Profile Picture">
+                <div id="google-signin-btn" class="hover:text-gray-300 flex items-center bg-white text-blue-600 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition hover-transition" onclick="onGoogleSignIn()">
                     <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5 mr-2"> Sign in with Google
                 </div>
-                <div id="google-signout-btn" class="hover:text-gray-300 hidden items-center bg-white text-red-600 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition hover-transition">
+                <div id="google-signout-btn" class="hover:text-gray-300 hidden items-center bg-white text-red-600 py-2 px-4 rounded-lg shadow hover:bg-gray-100 transition hover-transition" onclick="googleSignOut()">
                     <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5 mr-2"> Sign out
                 </div>
             </nav>
@@ -225,60 +298,54 @@
         </div>
     </section>
 
-    <!-- Meet the Owner Section -->
-    <section id="meet-the-owner" class="py-16 bg-gray-100 slide-in-left">
-        <div class="container mx-auto text-center">
-            <h2 class="text-4xl font-bold mb-8">Meet the Owner</h2>
-            <div class="flex flex-col md:flex-row items-center">
-                <img src="https://media.discordapp.net/attachments/1277703090245730324/1284176318820384768/984e6b54-32b0-45f7-82ef-21d6f9dc90a8.jpg" alt="Owner" class="w-40 h-40 rounded-full shadow-lg mx-auto mb-6 md:mb-0 md:mr-6">
-                <p class="text-lg">Hi, I’m Alex, the owner of Alex's Notary. With over a decade of experience in notarization services, I am committed to providing reliable, efficient, and convenient notary services to all my clients. My goal is to make the process as seamless as possible, whether you need a simple document notarized or more complex legal documentation handled.</p>
+    <!-- Meet the Owner & Achievements Section -->
+    <section class="achievements">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="text-center owner-info">
+                <h2 class="text-4xl font-bold mb-8">Meet the Owner</h2>
+                <p class="text-xl">Alex, a certified notary with over a decade of experience, is committed to providing top-tier services. With a passion for ensuring legal integrity and client satisfaction, Alex has completed thousands of notarizations, gaining a reputation for reliability and professionalism.</p>
+                <img src="images/carlos.jpg" alt="Owner" class="mt-8 mx-auto rounded-full" id="owner-picture">
+            </div>
+            <div class="text-center">
+                <h2 class="text-4xl font-bold mb-8">Our Achievements</h2>
+                <div class="achievement-card">
+                    <div class="achievement-icon">📃</div>
+                    <p>1000+ Notarizations Completed</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">🌟</div>
+                    <p>5-Star Customer Rating</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">💼</div>
+                    <p>10+ Years of Experience</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 3-Column Info Section with SVG Icons and Hover Effects -->
+    <!-- Services Section -->
     <section id="services" class="py-16">
         <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <!-- Mobile Notary -->
             <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
-                <img src="https://www.svgrepo.com/show/332155/notary-public-notary.svg" alt="Mobile Notary" class="svg-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/2977/2977879.png" alt="Mobile Notary" class="svg-icon">
                 <h2 class="text-2xl font-bold">Mobile Notary</h2>
                 <p class="mt-4">Convenient notarization services wherever you need us.</p>
             </div>
-            <!-- Document Preparation -->
             <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
-                <img src="https://www.svgrepo.com/show/16904/document.svg" alt="Document Preparation" class="svg-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/3208/3208684.png" alt="Document Preparation" class="svg-icon">
                 <h2 class="text-2xl font-bold">Document Preparation</h2>
                 <p class="mt-4">Get your documents prepared and reviewed with professionalism.</p>
             </div>
-            <!-- E-Notary -->
             <div class="bg-white p-8 rounded-lg shadow-lg hover-transition animate-fade-in-up">
-                <img src="https://www.svgrepo.com/show/322762/electronic-signature.svg" alt="E-Notary" class="svg-icon">
+                <img src="https://cdn-icons-png.flaticon.com/512/3199/3199877.png" alt="E-Notary" class="svg-icon">
                 <h2 class="text-2xl font-bold">E-Notary</h2>
                 <p class="mt-4">Fast, secure, and compliant electronic notarization services.</p>
             </div>
         </div>
     </section>
 
-    <!-- Info Section with Law-Related Image -->
-    <section class="py-16 bg-gray-100">
-        <div class="container mx-auto flex flex-col md:flex-row items-center">
-            <div class="md:w-1/2 animate-fade-in-up">
-                <img src="https://images.unsplash.com/photo-1523292562811-8fa7962a78c8?fit=crop&w=800&q=80" alt="Law Image" class="rounded-lg shadow-lg">
-            </div>
-            <div class="md:w-1/2 md:pl-12 mt-8 md:mt-0 animate-fade-in-up">
-                <h2 class="text-4xl font-bold">Why Choose Alex's Notary?</h2>
-                <p class="mt-4 text-lg">We provide reliable, efficient, and accessible notary services. Our mobile services ensure you can get documents notarized anywhere, and our team is here to guide you through every step.</p>
-                <ul class="mt-6 space-y-4">
-                    <li><strong>Expertise</strong>: Over a decade of experience in notarization and legal services.</li>
-                    <li><strong>Convenience</strong>: Mobile services to meet your scheduling needs.</li>
-                    <li><strong>Security</strong>: Legally compliant and secure notarization processes.</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section with Call to Action -->
+    <!-- Pricing Section -->
     <section id="pricing" class="py-16 bg-white">
         <div class="container mx-auto text-center">
             <h2 class="text-4xl font-bold mb-8">Our Pricing</h2>
@@ -305,7 +372,7 @@
         </div>
     </section>
 
-    <!-- Improved Review Section with Smooth Animation -->
+    <!-- Review Section -->
     <section id="reviews" class="py-16 bg-gray-100">
         <div class="container mx-auto text-center">
             <h2 class="text-4xl font-bold mb-8">Customer Reviews</h2>
@@ -359,7 +426,7 @@
         </div>
     </section>
 
-    <!-- Contact Section with Improved Design -->
+    <!-- Contact Section -->
     <section id="contact" class="py-16 bg-white">
         <div class="container mx-auto">
             <h2 class="text-4xl font-bold text-center mb-8 animate-fade-in-up">Get in Touch</h2>
@@ -381,19 +448,33 @@
         </div>
     </section>
 
-    <!-- Live Chat Button -->
+    <!-- Live Chat and Login Button -->
     <div class="chat-btn" onclick="checkSignInStatus()">
         <img src="https://www.svgrepo.com/show/168906/chat.svg" alt="Chat Icon">
     </div>
+    <div class="login-btn" style="right: 100px;" onclick="openLoginForm()">
+        <img src="https://www.svgrepo.com/show/452168/login.svg" alt="Login Icon">
+    </div>
 
     <!-- Chat Popup Form -->
-    <div class="chat-popup" id="chatForm">
+    <div class="popup" id="chatForm">
         <span class="close-btn" onclick="closeChatForm()">×</span>
         <h2 class="text-center mb-4">Live Chat</h2>
-        <form action="chat.html" method="GET">
+        <form action="chat1.html" method="GET">
             <input type="text" placeholder="Your Name" name="name" required>
             <textarea placeholder="Your Message" name="message" rows="4" required></textarea>
             <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <!-- Login Popup Form -->
+    <div class="popup" id="loginForm">
+        <span class="close-btn" onclick="closeLoginForm()">×</span>
+        <h2 class="text-center mb-4">Login</h2>
+        <form action="login1.html" method="GET">
+            <input type="email" placeholder="Email" name="email" required>
+            <input type="password" placeholder="Password" name="password" required>
+            <button type="submit">Login</button>
         </form>
     </div>
 
@@ -403,10 +484,10 @@
             <div>
                 <h4 class="text-xl font-bold mb-4">Quick Links</h4>
                 <ul>
-                    <li><a href="#" class="hover:text-gray-300">Home</a></li>
-                    <li><a href="#" class="hover:text-gray-300">Services</a></li>
-                    <li><a href="#" class="hover:text-gray-300">Pricing</a></li>
-                    <li><a href="#" class="hover:text-gray-300">Contact</a></li>
+                    <li><a href="index1.html" class="hover:text-gray-300">Home</a></li>
+                    <li><a href="services1.html" class="hover:text-gray-300">Services</a></li>
+                    <li><a href="pricing1.html" class="hover:text-gray-300">Pricing</a></li>
+                    <li><a href="contact1.html" class="hover:text-gray-300">Contact</a></li>
                 </ul>
             </div>
             <div>
@@ -418,7 +499,7 @@
             </div>
             <div>
                 <h4 class="text-xl font-bold mb-4">Social Media</h4>
-                <ul class="flex space-x-4">
+                <ul class="social-icons flex space-x-4">
                     <li><a href="https://facebook.com" class="hover:text-gray-300">
                         <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" class="w-6 h-6">
                     </a></li>
@@ -443,40 +524,41 @@
         </div>
     </footer>
 
-    <!-- JavaScript for the Google Sign-In, Slideshow, and Live Chat functionalities -->
+    <!-- JavaScript for Google Sign-In, Slideshow, Chat, and Login functionalities -->
     <script>
         let profile;
 
         function onGoogleSignIn() {
-            google.accounts.id.initialize({
-                client_id: "588178339415-0dcv5bfsoki59gb7lku6fahf9e1r0a78.apps.googleusercontent.com",
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-                document.getElementById('google-signin-btn'),
-                { theme: 'outline', size: 'large' }
-            );
-            google.accounts.id.prompt();
+            const clientId = "588178339415-0dcv5bfsoki59gb7lku6fahf9e1r0a78.apps.googleusercontent.com";
+            const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=https://alexg0dev.github.io/notary/&response_type=token&scope=email profile`;
+
+            window.location.href = authUrl;
         }
 
         function handleCredentialResponse(response) {
             profile = parseJwt(response.credential);
             document.getElementById('google-signin-btn').classList.add('hidden');
             document.getElementById('google-signout-btn').classList.remove('hidden');
-            alert(`Signed in as ${profile.name}`);
+            document.getElementById('profile-picture').src = profile.picture;
+            document.getElementById('profile-picture').style.display = 'block';
+            document.getElementById('username').textContent = profile.name;
+            document.getElementById('username').style.display = 'block';
+            alert(`Welcome, ${profile.name}! You are now signed in.`);
         }
 
         function googleSignOut() {
-            google.accounts.id.disableAutoSelect();
+            profile = null;
             document.getElementById('google-signin-btn').classList.remove('hidden');
             document.getElementById('google-signout-btn').classList.add('hidden');
+            document.getElementById('profile-picture').style.display = 'none';
+            document.getElementById('username').style.display = 'none';
             alert('Signed out');
         }
 
         function parseJwt(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
 
@@ -488,7 +570,7 @@
         // Mobile redirection logic
         function mobileRedirect() {
             if (window.innerWidth <= 768) {
-                window.location.href = 'index2.html';
+                window.location.href = 'index1.html';
             }
         }
 
@@ -498,10 +580,27 @@
         function checkSignInStatus() {
             if (!profile) {
                 alert("Please sign in first to access live chat.");
-                googleSignIn();
+                onGoogleSignIn();
             } else {
                 openChatForm();
             }
+        }
+
+        function openChatForm() {
+            document.getElementById('chatForm').style.display = 'block';
+        }
+
+        function closeChatForm() {
+            document.getElementById('chatForm').style.display = 'none';
+        }
+
+        // Login Access Logic
+        function openLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function closeLoginForm() {
+            document.getElementById('loginForm').style.display = 'none';
         }
 
         // Slide Show Logic
@@ -522,9 +621,6 @@
         }
 
         setInterval(autoSlide, 5000);
-
-        // Initialize Google Sign-In on page load
-        window.onload = onGoogleSignIn;
     </script>
 </body>
 
